@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "annapeberdy",
+    "password": null,
+    "database": "SDC",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "annapeberdy",
+    "password": null,
+    "database": "SDC",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "annapeberdy",
+    "password": null,
+    "database": "SDC",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
