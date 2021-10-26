@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 3001;
+const axios = require('axios');
 const db = require('../models/index.js');
 
 let auth = async () => {
@@ -13,7 +14,25 @@ let auth = async () => {
 }
 auth();
 
+app.get('/reviews', (req, res) => {
 
+});
+
+app.get('/metaData', (req, res) => {
+
+});
+
+app.post('/postReview', (req, res) => {
+
+});
+
+app.put('/reviews/:review_id/helpful', (req, res) => {
+
+});
+
+app.put('/reviews/:review_id/report', (req, res) => {
+
+});
 
 
 
