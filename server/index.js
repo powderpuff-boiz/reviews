@@ -7,11 +7,11 @@ app.get('/reviews', (req, res) => {
   let page = 1;
   let count = 5;
   let sort = 'newest';
-  let product_id = 1;
+  let product_id = '5';
   models.reviews.getReviews(page, count, sort, product_id)
     .then((response) => {
       console.log('success getting reviews: ', response.rows);
-      res.sendStatus(200);
+      res.send(response.rows);
     })
     .catch((error) => {
       console.log('error getting reviews: ', error);

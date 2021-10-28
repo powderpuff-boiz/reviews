@@ -3,10 +3,12 @@ const db = require('../db/index.js');
 module.exports = {
   reviews: {
     getReviews: function (page, count, sort, product_id) {
-      //console.log('the request coming into the model: ', page)
+      console.log('the request coming into the model: ', typeof product_id)
       return new Promise((resolve, reject) => {
+        let text = 'SELECT * FROM getTheReviews($1, $2, $3)'
+        let values = [page, count, product_id]
         db
-          .query('SELECT * FROM getTheReviews(1, 5)')
+          .query(text, values)
           .then((res) => {
             resolve(res);
           })

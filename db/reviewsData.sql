@@ -84,8 +84,9 @@ csv header;
 
 DROP FUNCTION IF EXISTS getTheReviews;
 CREATE FUNCTION getTheReviews(
-          PageNumber INTEGER = NULL,
-          PageSize INTEGER = NULL
+          page INTEGER = NULL,
+          count INTEGER = NULL,
+          productid TEXT = NULL
           )
           RETURNS SETOF reviews AS
           $BODY$
@@ -93,12 +94,14 @@ CREATE FUNCTION getTheReviews(
            PageOffset INTEGER :=0;
           BEGIN
 
-           PageOffset := ((PageNumber-1) * PageSize);
+           PageOffset := ((page-1) * count);
 
            RETURN QUERY
             SELECT *
             FROM reviews
-            LIMIT PageSize
+            WHERE product_id = productid
+            ORDER BY date DESC
+            LIMIT count
             OFFSET PageOffset;
          END;
          $BODY$
