@@ -1,29 +1,7 @@
-DROP TABLE IF EXISTS reviews;
-
-
-
-
--- CREATE TABLE reviews (
---     id SERIAL,
---     product_id INTEGER,
---     rating INTEGER,
---     date BIGINT,
---     summary VARCHAR(255),
---     body VARCHAR,
---     recommend BOOLEAN,
---     reported BOOLEAN,
---     reviewer_name VARCHAR,
---     reviewer_email VARCHAR,
---     response VARCHAR(255),
---     helpfulness INTEGER
--- );
-
-
-
 
 DROP TABLE IF EXISTS reviews;
 
-/* Table 'review' */
+/* Table 'reviews' */
 CREATE TABLE reviews(
   id SERIAL NOT NULL,
   product_id varchar NOT NULL,
@@ -103,3 +81,26 @@ ALTER TABLE characteristic_reviews
 from '/Users/annapeberdy/Desktop/SDC/reviews/seeders/reviewsData/characteristic_reviews.csv'
 delimiter ','
 csv header;
+
+DROP FUNCTION IF EXISTS getTheReviews;
+CREATE FUNCTION getTheReviews(
+          PageNumber INTEGER = NULL,
+          PageSize INTEGER = NULL
+          )
+          RETURNS SETOF reviews AS
+          $BODY$
+          DECLARE
+           PageOffset INTEGER :=0;
+          BEGIN
+
+           PageOffset := ((PageNumber-1) * PageSize);
+
+           RETURN QUERY
+            SELECT *
+            FROM reviews
+            LIMIT PageSize
+            OFFSET PageOffset;
+         END;
+         $BODY$
+         LANGUAGE plpgsql;
+
