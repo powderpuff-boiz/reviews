@@ -1,5 +1,9 @@
 
-DROP TABLE IF EXISTS reviews;
+DROP FUNCTION IF EXISTS getTheReviews;
+DROP TABLE IF EXISTS characteristic_reviews;
+DROP TABLE IF EXISTS characteristics;
+DROP TABLE IF EXISTS photos;
+DROP TABLE IF EXISTS reviews CASCADE;
 
 /* Table 'reviews' */
 CREATE TABLE reviews(
@@ -22,8 +26,12 @@ copy reviews(id, product_id, rating, date, summary, body, recommend, reported, r
 from '/Users/annapeberdy/Desktop/SDC/reviews/seeders/reviewsData/reviews.csv'
 delimiter ','
 csv header;
+-- select setval('reviews_id_seq', select max(id) from reviews);
+-- SET max_value = (SELECT MAX('id') FROM 'reviews');
+-- SELECT setval('reviews_id_seq', max_value);
+SELECT setval('reviews_id_seq', (SELECT MAX(id) FROM reviews));
 
-DROP TABLE IF EXISTS photos;
+
 /* Table 'photos' */
 CREATE TABLE photos(
   id SERIAL,
@@ -40,8 +48,9 @@ copy photos(id, reviews_id, url)
 from '/Users/annapeberdy/Desktop/SDC/reviews/seeders/reviewsData/reviews_photos.csv'
 delimiter ','
 csv header;
+SELECT setval('photos_id_seq', (SELECT MAX(id) FROM photos));
 
-DROP TABLE IF EXISTS characteristics;
+
 /* Table 'characteristics' */
 CREATE TABLE "characteristics"(
   id SERIAL,
@@ -54,8 +63,9 @@ copy characteristics(id, product_id, name)
 from '/Users/annapeberdy/Desktop/SDC/reviews/seeders/reviewsData/characteristics.csv'
 delimiter ','
 csv header;
+SELECT setval('characteristics_id_seq', (SELECT MAX(id) FROM characteristics));
 
-DROP TABLE IF EXISTS characteristic_reviews;
+
 /* Table 'characteristic_reviews' */
 CREATE TABLE characteristic_reviews(
   id SERIAL,
@@ -81,8 +91,9 @@ ALTER TABLE characteristic_reviews
 from '/Users/annapeberdy/Desktop/SDC/reviews/seeders/reviewsData/characteristic_reviews.csv'
 delimiter ','
 csv header;
+SELECT setval('characteristic_reviews_id_seq', (SELECT MAX(id) FROM characteristic_reviews));
 
-DROP FUNCTION IF EXISTS getTheReviews;
+
 CREATE FUNCTION getTheReviews(
           page INTEGER = NULL,
           count INTEGER = NULL,

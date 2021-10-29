@@ -3,10 +3,12 @@ const app = express();
 const port = 3001;
 const { reviews, db } = require('../models/index.js');
 
+app.use(express.json());
+
 app.get('/reviews', (req, res) => {
-  let page = 1;
-  let count = 5;
-  let sort = 'newest';
+  let page = req.query.page || 1;
+  let count = req.query.count || 5;
+  let sort = req.query.sort || 'newest';
   let product_id = req.query.product_id;
   reviews.getReviews(page, count, sort, product_id)
     .then((response) => {
@@ -19,13 +21,22 @@ app.get('/reviews', (req, res) => {
     })
 });
 
-// app.get('/metaData', (req, res) => {
+app.get('/metaData', (req, res) => {
 
-// });
+});
 
-// app.post('/postReview', (req, res) => {
-
-// });
+app.post('/postReview', (req, res) => {
+  let newReview = req.body;
+  reviews.postReview(newReview)
+    .then((response) => {
+      console.log('success posting review');
+      res.send(response);
+    })
+    .catch((error) => {
+      console.log('error adding review: ', error);
+      res.sendStatus(500);
+    })
+});
 
 app.put('/reviews/:review_id/helpful', (req, res) => {
   let id = req.params.review_id;

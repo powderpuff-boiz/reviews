@@ -3,36 +3,23 @@ const db = require('../db/index.js');
 module.exports = {
   reviews: {
     getReviews: function (page, count, sort, product_id) {
-      //console.log('the request coming into the model: ', typeof product_id)
       return new Promise(async (resolve, reject) => {
         let text = 'SELECT * FROM getTheReviews($1, $2, $3)'
         let values = [page, count, product_id]
-        // db
-        //   .query(text, values)
-        //   .then((res) => {
-        //     resolve(res);
-        //   })
-        //   .catch((error) => {
-        //     reject(error);
-        //   })
         try {
           const reviewsResponse = await db.query(text, values)
           let photoPromises = [];
-          //console.log('is this going to print or nah --------------->', reviewsResponse.rows)
           let reviews = reviewsResponse.rows;
           for (var i = 0; i < reviews.length; i++) {
             let reviewId = reviews[i].id;
-            //console.log('this is the review id -------------->:', reviewId)
             let photosText = 'SELECT id, url FROM photos WHERE reviews_id = $1'
             let photosValues = [reviewId];
             photoPromises.push(db.query(photosText, photosValues))
           }
           let photos = await Promise.all(photoPromises);
           for (var j = 0; j < photos.length; j++) {
-            //console.log('did this run ------------------------------->')
             reviews[j].photos = photos[j].rows;
           }
-          //console.log('this is the final review obj: ', reviews)
           resolve(reviews)
         } catch (err) {
           reject(err);
@@ -46,33 +33,42 @@ module.exports = {
     //     //query
     //   })
     // },
-    postReview: function () {
-      // const promise = new Promise((resolve, reject) => {
-      //   //product_id	integer	Required ID of the product to post the review for
-      //   // rating	int	Integer (1-5) indicating the review rating
-      //   // summary	text	Summary text of the review
-      //   // body	text	Continued or full text of the review
-      //   // recommend	bool	Value indicating if the reviewer recommends the product
-      //   // name	text	Username for question asker
-      //   // email	text	Email address for question asker
-      //   // photos	[text]	Array of text urls that link to images to be shown
-      //   // characteristics	object	Object of keys representing characteristic_id and values representing the review value for that characteristic. { "14": 5, "15": 5 //...}
-      //   let reviewsText = 'INSERT INTO reviews()';
-      //   let reviewsValues = '';
+    postReview: function (review) {
+      return new Promise(async (resolve, reject) => {
+        let reviewsText = 'INSERT INTO reviews(product_id, rating, date, summary, body, recommend, reviewer_name, reviewer_email) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *';
+        let reviewsValues = [review.product_id, review.rating, 10282021, review.summary, review.body, review.recommend, review.name, review.email];
 
-      //   let photosText = '';
-      //   let photosValues = '';
+        let photosText = 'INSERT INTO photos(url, reviews_id) VALUES($1, $2)';
+        let photosValue = [];
+        let photosPromises = [];
 
-      //   let characteristicsText = '';
-      //   let characteristicsValues = '';
-      //   db
-      //     .query(text, values)
-      //     .then(res => {
-      //       console.log(res.rows[0])
-      //       // { name: 'brianc', email: 'brian.m.carlson@gmail.com' }
-      //     })
-      //     .catch(e => console.error(e.stack))
-      // })
+        let characteristicsText = 'INSERT INTO characteristic_reviews(value, characteristic_id, reviews_id) VALUES($1, $2, $3)';
+        let characteristicsValues = [];
+        let characteristicsPromises = [];
+        try {
+          const addReviewValues = await db.query(reviewsText, reviewsValues)
+          if (review.photos.length > 0) {
+            for (var i = 0; i < review.photos.length; i++) {
+              photosValue = [review.photos[i], addReviewValues.rows[0].id];
+              console.log('new review id ------------>: ', addReviewValues.rows[0].id);
+              photosPromises.push(db.query(photosText, photosValue))
+            }
+            await Promise.all(photosPromises);
+          }
+          if (review.characteristics !== undefined) {
+            for (var key in review.characteristics) {
+              characteristicValues = [review.characteristics[key], key, addReviewValues.id];
+
+              characteristicsPromises.push(db.query(characteristicsText, characteristicValues));
+            }
+            await Promise.all(characteristicsPromises);
+          }
+          resolve()
+        } catch (err) {
+          reject(err)
+        }
+
+      })
     },
     updateHelpful: function (id) {
       return new Promise(async (resolve, reject) => {
