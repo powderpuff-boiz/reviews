@@ -13,7 +13,13 @@ app.get('/reviews', (req, res) => {
   reviews.getReviews(page, count, sort, product_id)
     .then((response) => {
       console.log('success getting reviews: ', response);
-      res.send(response);
+      let resultObj = {
+        product: product_id,
+        page: page,
+        count: count,
+        results: response
+      }
+      res.json(resultObj);
     })
     .catch((error) => {
       console.log('error getting reviews: ', error);
@@ -22,7 +28,16 @@ app.get('/reviews', (req, res) => {
 });
 
 app.get('/metaData', (req, res) => {
-
+  let product_id = req.query.product_id;
+  reviews.getMetaData(product_id)
+    .then((metaData) => {
+      console.log('success getting meta data: ', metaData);
+      res.send(metaData);
+    })
+    .catch((error) => {
+      console.log('error getting meta data: ', error);
+      res.sendStatus(500);
+    })
 });
 
 app.post('/postReview', (req, res) => {

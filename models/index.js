@@ -26,17 +26,70 @@ module.exports = {
         }
       })
     },
-    // getMetaData: function () {
-    //   const promise = new Promise((resolve, reject) => {
-    //     //do stuff
-    //     //query string
-    //     //query
-    //   })
-    // },
+    getMetaData: function (product_id) {
+      return new Promise(async (resolve, reject) => {
+
+        let reviewsText = 'SELECT rating, recommend, id FROM reviews WHERE product_id=$1';
+        let reviewsValue = [product_id];
+
+        let characteristicsText = 'SELECT * FROM characteristic_reviews WHERE reviews_id=$1';
+        let characteristicsValue;
+
+        let nameText = 'SELECT name FROM characteristics WHERE id=$1';
+        let nameValue;
+
+        let valueText = 'SELECT value FROM characteristic_reviews WHERE characteristic_id=$1 ';
+        let valueValue;
+
+        try {
+          const { rows } = await db.query(reviewsText, reviewsValue);
+          let ratingsAndReviews = { ratings: {}, recommended: { true: 0, false: 0 }, characteristics: {} };
+          let promises = []
+          for (var i = 0; i < rows.length; i++) {
+            let characteristicsValue = [rows[i].id];
+            let currentVal = rows[i];
+            if (ratingsAndReviews.ratings[currentVal.rating] === undefined) {
+              ratingsAndReviews.ratings[currentVal.rating] = 1;
+            } else {
+              ratingsAndReviews.ratings[currentVal.rating]++;
+            }
+            if (currentVal.recommend === true) {
+              ratingsAndReviews.recommended.true++;
+            } else {
+              ratingsAndReviews.recommended.false++;
+            }
+            promises.push(module.exports.getCharacteristics(rows[i].id))
+          }
+          let allCharacteristics = await Promise.all(promises)
+          for (let i = 0; i < allCharacteristics.length; i++) {
+            for (let key of Object.keys(allCharacteristics[i])) {
+              if (ratingsAndReviews.characteristics[key] === undefined) {
+                ratingsAndReviews.characteristics[key] = {
+                  id: allCharacteristics[i][key].id,
+                  values: [allCharacteristics[i][key].value]
+                }
+              } else {
+                ratingsAndReviews.characteristics[key].values.push(allCharacteristics[i][key].value)
+              }
+            }
+          }
+
+          for (let key of Object.keys(ratingsAndReviews.characteristics)) {
+            let value = ((ratingsAndReviews.characteristics[key].values.reduce((a, b) => a + b)) / ratingsAndReviews.characteristics[key].values.length).toFixed(16)
+            ratingsAndReviews.characteristics[key].value = value
+            delete ratingsAndReviews.characteristics[key].values
+          }
+
+          resolve(ratingsAndReviews);
+        } catch (error) {
+          reject(error);
+        }
+      })
+    },
     postReview: function (review) {
       return new Promise(async (resolve, reject) => {
         let reviewsText = 'INSERT INTO reviews(product_id, rating, date, summary, body, recommend, reviewer_name, reviewer_email) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *';
-        let reviewsValues = [review.product_id, review.rating, 10282021, review.summary, review.body, review.recommend, review.name, review.email];
+        let reviewsValues = [review.product_id, review.rating, Date.now(), review.summary, review.body, review.recommend, review.name, review.email];
 
         let photosText = 'INSERT INTO photos(url, reviews_id) VALUES($1, $2)';
         let photosValue = [];
@@ -96,6 +149,38 @@ module.exports = {
         }
       })
     }
+  },
+  getCharacteristics: (review_id) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const char_reviewsQueryString = 'SELECT * FROM characteristic_reviews WHERE reviews_id = $1'
+        const charQueryString = 'SELECT * FROM characteristics WHERE id = $1'
+        const char_reviewValues = [review_id]
+        const char_reviews = await db.query(char_reviewsQueryString, char_reviewValues)
+
+        let characteristics = {}
+        const characteristicsPromises = []
+
+        for (let i = 0; i < char_reviews.rows.length; i++) {
+          let id = char_reviews.rows[i].characteristic_id
+          characteristicsPromises.push(db.query(charQueryString, [id]))
+        }
+
+        let characteristicsArray = await Promise.all(characteristicsPromises)
+
+        for (let i = 0; i < characteristicsArray.length; i++) {
+          let row = characteristicsArray[i].rows[0]
+          characteristics[row.name] = {
+            id: row.id,
+            value: char_reviews.rows[i].value
+          }
+        }
+
+        resolve(characteristics)
+      } catch (err) {
+        reject(err)
+      }
+    })
   },
   db
 }
