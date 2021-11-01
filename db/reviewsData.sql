@@ -13,12 +13,12 @@ CREATE TABLE reviews(
   date BIGINT NOT NULL,
   summary text,
   body text,
-  recommend boolean,
-  reported boolean,
+  recommend boolean DEFAULT true,
+  reported boolean DEFAULT false,
   reviewer_name varchar NOT NULL,
   reviewer_email varchar NOT NULL,
   response text,
-  helpfulness integer,
+  helpfulness integer DEFAULT 0,
   PRIMARY KEY(id)
 );
 

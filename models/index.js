@@ -103,14 +103,14 @@ module.exports = {
           if (review.photos.length > 0) {
             for (var i = 0; i < review.photos.length; i++) {
               photosValue = [review.photos[i], addReviewValues.rows[0].id];
-              console.log('new review id ------------>: ', addReviewValues.rows[0].id);
+              //console.log('new review id ------------>: ', addReviewValues.rows[0].id);
               photosPromises.push(db.query(photosText, photosValue))
             }
             await Promise.all(photosPromises);
           }
           if (review.characteristics !== undefined) {
             for (var key in review.characteristics) {
-              characteristicValues = [review.characteristics[key], key, addReviewValues.id];
+              characteristicValues = [review.characteristics[key], key, addReviewValues.rows[0].id];
 
               characteristicsPromises.push(db.query(characteristicsText, characteristicValues));
             }
