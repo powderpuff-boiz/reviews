@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest spec/ --verbose",
+    "test": "jest spec/ --verbose --coverage",
     "start": "nodemon server/index.js"
   },
   "repository": {

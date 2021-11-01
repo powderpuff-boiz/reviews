@@ -83,13 +83,23 @@ app.put('/reviews/:review_id/report', (req, res) => {
 
 
 
-app.listen(port, () => {
+let server = app.listen(port, () => {
   console.log(`Listening on ${port}`);
 })
-// let close = () => {
-//   server.close(() => {
-//     db.close();
-//   });
-// }
+let close = (done) => {
+  server.close(() => {
+    db.end()
+      .then(() => {
+        console.log('database closed successfully');
+        done();
+      })
+      .catch((error) => {
+        console.log('error closing database: ', error);
+      })
+  });
+}
 
-module.exports = app;
+module.exports = {
+  app,
+  close
+};
