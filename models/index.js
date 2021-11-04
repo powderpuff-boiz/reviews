@@ -38,8 +38,8 @@ module.exports = {
         let nameText = 'SELECT name FROM characteristics WHERE id=$1';
         let nameValue;
 
-        let valueText = 'SELECT value FROM characteristic_reviews WHERE characteristic_id=$1 ';
-        let valueValue;
+        // let valueText = 'SELECT value FROM characteristic_reviews WHERE characteristic_id=$1 ';
+        // let valueValue;
 
         try {
           const { rows } = await db.query(reviewsText, reviewsValue);
