@@ -30,6 +30,8 @@ csv header;
 -- SET max_value = (SELECT MAX('id') FROM 'reviews');
 -- SELECT setval('reviews_id_seq', max_value);
 SELECT setval('reviews_id_seq', (SELECT MAX(id) FROM reviews));
+CREATE INDEX product_idx ON reviews (product_id);
+
 
 
 /* Table 'photos' */
@@ -49,6 +51,7 @@ from '/Users/annapeberdy/Desktop/SDC/reviews/seeders/reviewsData/reviews_photos.
 delimiter ','
 csv header;
 SELECT setval('photos_id_seq', (SELECT MAX(id) FROM photos));
+CREATE INDEX reviews_idx ON photos (reviews_id);
 
 
 /* Table 'characteristics' */
@@ -92,6 +95,7 @@ from '/Users/annapeberdy/Desktop/SDC/reviews/seeders/reviewsData/characteristic_
 delimiter ','
 csv header;
 SELECT setval('characteristic_reviews_id_seq', (SELECT MAX(id) FROM characteristic_reviews));
+CREATE INDEX reviews_idxx ON characteristic_reviews(reviews_id);
 
 
 CREATE FUNCTION getTheReviews(

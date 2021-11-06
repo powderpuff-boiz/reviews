@@ -12,7 +12,7 @@ app.get('/reviews', (req, res) => {
   let product_id = req.query.product_id;
   reviews.getReviews(page, count, sort, product_id)
     .then((response) => {
-      console.log('success getting reviews: ', response);
+      //console.log('success getting reviews: ', response);
       let resultObj = {
         product: product_id,
         page: page,
@@ -31,7 +31,7 @@ app.get('/metaData', (req, res) => {
   let product_id = req.query.product_id;
   reviews.getMetaData(product_id)
     .then((metaData) => {
-      console.log('success getting meta data: ', metaData);
+      //console.log('success getting meta data: ', metaData);
       res.send(metaData);
     })
     .catch((error) => {
