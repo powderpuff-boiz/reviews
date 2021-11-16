@@ -13,7 +13,7 @@ export const options = {
 
 export default function () {
   let randomId = Math.floor(Math.random() * (576000 - 1 + 1) + 1)
-  const res = http.get(`http://3.19.55.160/metaData?product_id=${randomId}`,
+  const res = http.get(`http://3.19.68.133/metaData?product_id=${randomId}`,
     { tags: { name: 'getMetaData' } });
   check(res, {
     'is status 200': (r) => r.status === 200,
